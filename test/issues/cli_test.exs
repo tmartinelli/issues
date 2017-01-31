@@ -2,7 +2,7 @@ defmodule CliTest do
   use ExUnit.Case
   doctest Issues.CLI
 
-  import Issues.CLI, only: [ parse_args: 1 ]
+  import Issues.CLI, only: [ parse_args: 1, sort_in_ascending_order: 1 ]
 
   test ":help returned by option parsing with -h and --help options" do
     assert parse_args([ "-h", "anything" ]) == :help
@@ -20,5 +20,15 @@ defmodule CliTest do
 
   test ":help returned if no args given" do
     assert parse_args([]) == :help
+  end
+
+  test "sort in ascending order in correct way" do
+    issues = ["c", "b", "a"] |> fake_issues |> sort_in_ascending_order
+    expected = for issue <- issues, do: issue |> Map.get(:created_at)
+    assert expected == ["a", "b", "c"]
+  end
+
+  defp fake_issues(values) do
+    for value <- values, do: %{ created_at: value, other_value: "xxx" }
   end
 end

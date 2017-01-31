@@ -19,9 +19,11 @@ defmodule Issues.CLI do
       System.halt(0)
     end
 
-    def process({ user, project, _count }) do
+    def process({ user, project, count }) do
       Issues.GitHubIssues.fetch(user, project)
       |> decode_response
+      |> sort_in_ascending_order
+      |> Enum.take(count)
     end
 
     def decode_response({ :ok, body }), do: body
@@ -30,6 +32,10 @@ defmodule Issues.CLI do
       { _, message } = List.keyfind(error, "message", 0)
       IO.puts("Error fetching from Github: #{message}")
       System.halt(2)
+    end
+
+    def sort_in_ascending_order(issues) do
+      issues |> Enum.sort(&(&1 <= &2))
     end
 
     @doc """
