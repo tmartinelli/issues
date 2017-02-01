@@ -24,6 +24,7 @@ defmodule Issues.CLI do
       |> decode_response
       |> sort_in_ascending_order
       |> Enum.take(count)
+      |> print_issues
     end
 
     def decode_response({ :ok, body }), do: body
@@ -36,6 +37,19 @@ defmodule Issues.CLI do
 
     def sort_in_ascending_order(issues) do
       issues |> Enum.sort(&(&1 <= &2))
+    end
+
+    def print_issues(issues) do
+      IO.puts("# | created_at | title")
+      IO.puts("----+--------------------+--------------------")
+      _print_issues(issues)
+    end
+
+    def _print_issues([]), do: :ok
+
+    def _print_issues([ %{ "id" => id, "created_at" => created_at, "title" => title } | tail ]) do
+      IO.puts("#{id} | #{created_at} | #{title}")
+      _print_issues(tail)
     end
 
     @doc """
